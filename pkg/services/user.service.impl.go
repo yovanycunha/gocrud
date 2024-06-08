@@ -85,3 +85,14 @@ func (us *UserServiceImpl) UpdateUser(user *models.User) error {
 	return nil
 }
 
+func (us *UserServiceImpl) DeleteUser(username *string) error {
+	filter := bson.D{
+		bson.E{Key: "user_name", Value: username}}
+	result, _ := us.userCollection.DeleteOne(us.ctx, filter)
+	
+	if result.DeletedCount != 1 {
+		return errors.New("no users found to delete")
+	}
+
+	return nil
+}

@@ -74,10 +74,22 @@ func (uc *UserController) UpdateUser( ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
 }
 
+func (uc *UserController) DeleteUser(ctx *gin.Context) {
+	username := ctx.Param("name")
+	err := uc.UserService.DeleteUser((&username))
+	if err != nil{
+		ctx.JSON(http.StatusBadGateway,gin.H{"message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+}
+
 func (uc *UserController) RegisterUserRoutes(router *gin.RouterGroup) {
 	userroute := router.Group("/user")
 	userroute.POST("/create", uc.CreateUser)
 	userroute.GET("/:name", uc.GetUser)
 	userroute.GET("/allusers", uc.GetAllUsers)
 	userroute.PATCH("/update", uc.UpdateUser)
+	userroute.DELETE("/:name", uc.DeleteUser)
 }
