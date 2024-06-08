@@ -47,6 +47,16 @@ func (uc *UserController) GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+func (uc *UserController) GetAllUsers(ctx *gin.Context) {
+	users, err := uc.UserService.GetAllUsers()
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, users)
+}
+
 func (uc *UserController) UpdateUser( ctx *gin.Context) {
 	var user models.User
 	if err := ctx.Copy().ShouldBindJSON(&user);
@@ -68,5 +78,6 @@ func (uc *UserController) RegisterUserRoutes(router *gin.RouterGroup) {
 	userroute := router.Group("/user")
 	userroute.POST("/create", uc.CreateUser)
 	userroute.GET("/:name", uc.GetUser)
+	userroute.GET("/allusers", uc.GetAllUsers)
 	userroute.PATCH("/update", uc.UpdateUser)
 }

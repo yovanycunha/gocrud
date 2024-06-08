@@ -36,6 +36,39 @@ func (us *UserServiceImpl) GetUser(userName *string) (*models.User,error) {
 	return user , err
 }
 
+func (us *UserServiceImpl) GetAllUsers() ([]*models.User, error){
+	var users []*models.User
+
+	cursor, err := us.userCollection.Find(us.ctx, bson.D{})
+	if err != nil {
+		return nil, err
+	}
+
+	for cursor.Next(us.ctx){
+		var user models.User
+
+		err := cursor.Decode(&user)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, &user)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	cursor.Close(us.ctx)
+
+	if len(users) == 0 {
+		return nil, errors.New("no users found")
+	}
+
+	return users, nil
+	
+}
+
 func (us *UserServiceImpl) UpdateUser(user *models.User) error {
 	filter := bson.D{bson.E{Key: "user_name", Value: user.Name}}
 	update := bson.D{bson.E{
